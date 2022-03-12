@@ -10,18 +10,16 @@ public class Solution {
 
     PriorityQueue<Integer> queue = convertIntArrToPriorityQueue(scoville);
 
-    while(queue.size() > 1) {
-      int lowest = (int) queue.poll();
-      if (lowest > K) {
+    while(queue.peek() < K) {
+      try {
+        int newSpice = queue.poll() + (queue.poll() * 2);
+        queue.add(newSpice);
+        answer++;
+
+      } catch(Exception e) {
+        answer = -1;
         break;
       }
-      int lower  = (int) queue.poll();
-      queue.add(getMixedScoville(lowest, lower));
-      answer++;
-    }
-
-    if (queue.size() == 1 && queue.peek() <= K) {
-      return -1;
     }
 
     return answer;
@@ -31,12 +29,5 @@ public class Solution {
     PriorityQueue<Integer> queue = new PriorityQueue<>(scoville.length);
     queue.addAll(Arrays.stream(scoville).boxed().collect(Collectors.toList()));
     return queue;
-  }
-
-  private int getMixedScoville(int lowest, int lower) {
-    if (lower == 0) {
-      return lowest;
-    }
-    return lowest + (lower * 2);
   }
 }
