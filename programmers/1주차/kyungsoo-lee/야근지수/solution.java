@@ -1,38 +1,59 @@
 package com.example.programmers;
 
-import java.util.*;
+import org.junit.jupiter.api.Test;
 
-public class Solution {
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.PriorityQueue;
+import java.util.stream.Collectors;
 
-  final static int TASK_COMPLETE_RATE = 100;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-  public int[] solution(int[] progresses, int[] speeds) {
-    List<Integer> answer = new ArrayList<>();
-    Queue<Integer> restDayQueue = new LinkedList<>();
+public class Overtime {
 
-    for (int i=0; i < progresses.length; i++) {
-      int restProcess = TASK_COMPLETE_RATE - progresses[i];
-      double restDay = restProcess / (double) speeds[i];
-      restDayQueue.add((int) Math.ceil(restDay));
+  @Test
+  public void Test() {
+    int[] works1 = {4, 3, 3};
+    int[] works2 = {2, 1, 2};
+    int[] works3 = {1, 1};
+    int n1 = 4;
+    int n2 = 1;
+    int n3 = 3;
+    int expected1 = 12;
+    int expected2 = 6;
+    int expected3 = 0;
+
+    assertEquals(expected1, solution(n1, works1));
+    assertEquals(expected2, solution(n2, works2));
+    assertEquals(expected3, solution(n3, works3));
+  }
+
+
+  public long solution(int n, int[] works) {
+    long answer = 0;
+
+    PriorityQueue<Integer> queue = convertIntArrToPriorityQueue(works);
+
+    Integer requiredOvertime = queue.stream().reduce(0, (num1, num2) -> num1 + num2) - n;
+
+    if (requiredOvertime <= 0) {
+      return answer;
     }
 
-    Integer maxDay = restDayQueue.poll();
-    Integer numOfDeploy = 1;
-    for (Integer restDay : restDayQueue) {
-      if (maxDay < restDay) {
-        answer.add(numOfDeploy);
-        numOfDeploy = 1;
-        maxDay = restDay;
-      } else {
-        numOfDeploy++;
-      }
+    for (int i = 0; i < n; i++) {
+      queue.add(queue.poll() - 1);
     }
 
-    if ( numOfDeploy != 0) {
-      answer.add(numOfDeploy);
+    for (Integer work : queue) {
+      answer += Math.pow(work, 2);
     }
 
-    return answer.stream().mapToInt(Integer::intValue).toArray();
+    return answer;
+  }
+
+  private PriorityQueue<Integer> convertIntArrToPriorityQueue(int[] works) {
+    PriorityQueue<Integer> queue = new PriorityQueue<>(Collections.reverseOrder());
+    queue.addAll(Arrays.stream(works).boxed().collect(Collectors.toList()));
+    return queue;
   }
 }
-
